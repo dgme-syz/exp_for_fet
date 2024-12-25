@@ -1,11 +1,6 @@
-from collections import OrderedDict
 from typing import List
-from transformers import Qwen2Tokenizer
 
 EXTRA_LIMIT = "[Warning]: Just output nothing except entity types above, separate them by one space, there may be more than one answer"
-
-
-
 
 def register_template(
     sentence: str,

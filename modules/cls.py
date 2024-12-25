@@ -7,7 +7,7 @@ from copy import deepcopy
 import re
 
 NAME_CLS_MAPPING = OrderedDict({
-    ("figer", "modules/figer.txt")
+    ("figer", "modules/datasets_classes/figer.txt")
 })
 
 

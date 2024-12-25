@@ -2,12 +2,13 @@ from collections import defaultdict
 from typing import List
 from transformers import pipeline, AutoTokenizer
 from .cls import AutoCLS, get_suf
-from datasets import Dataset, load_dataset
 from concurrent.futures import ThreadPoolExecutor
 from .template import register_template
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+from typing import Union
+import wandb
 
 SYSTEM_INFO = {"role": "system", "content": "You are a excellent linguist, you can finish the following task well! Also, you need to recognize some entity types are relative."}
 
@@ -62,7 +63,12 @@ class Scores:
 def process(
     examples: dict, 
     order: List[str],
+    use_type: str = "eval", 
 ) -> dict:
+    r"""
+        (1). use_type == "eval", prepare the data for evaluation.
+        (2.  use_type == "alpaca", prepare the data(alpaca format) for sft.
+    """
     mentions, tokens = examples["mentions"], examples["tokens"]
     text, label, num_samples = [], [], len(mentions)
     
@@ -85,7 +91,16 @@ def process(
         res = executor.map(access_single, range(num_samples))
         for t, l in res: text.extend(t), label.extend(l)
         
-    return {"text": text, "label": label}
+    if use_type == "eval":
+        return {"text": text, "label": label}
+    elif use_type == "alpaca":
+        return {
+            "instruction": text, 
+            "output": [" ".join(x) for x in label], 
+            "input": ["" for _ in range(len(text))]
+        }
+    else:
+        raise ValueError(f"Invalid use_type: {use_type}")
     
 def eval(
     pipe: pipeline,  
@@ -124,6 +139,7 @@ def eval(
             pbar.set_postfix({
                 "acc": info["accuracy"],
             })
+            wandb.log({"acc": info["accuracy"]})
     print(
         f"Accuracy: {mec.evaluate['accuracy']:.4f}\n"
         f"Macro F1: {mec.evaluate['macro_f1']:.4f}\n"
