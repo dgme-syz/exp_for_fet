@@ -1,8 +1,11 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import pipeline, AutoTokenizer
 import argparse
 from torch.utils.data import DataLoader
 from datasets import load_dataset
-from concurrent.futures import ThreadPoolExecutor
+from modules import AutoCLS, eval
+from typing import List
+import torch
+from tqdm import tqdm
 
 def get_args():
     parser = argparse.ArgumentParser(
@@ -30,29 +33,35 @@ def get_args():
         help="Path to the class file"
     )
     
+    parser.add_argument(
+        "--order",
+        type=int, 
+        default=0,
+        help="Order of classes"
+    )
+    
     return parser.parse_args()
     
-def process(
-    examples: dict, 
-    tokenizer: AutoTokenizer,
-) -> dict:
-    raise NotImplementedError
-    
+
+            
+            
 def main(args):
-    model = AutoModelForCausalLM.from_pretrained(
-        args.model_path, device_map="auto", torch_dtype="auto", trust_remote_code=True
-    ).eval()
     
     tokenizer = AutoTokenizer.from_pretrained(
         args.model_path, trust_remote_code=True
     )
-    
-    
-    data_loader = DataLoader(
-        dataset = load_dataset(args.data_path, trust_remote_code=True), split="train"
+    cls = AutoCLS.from_file(args.cls_path)
+    order = cls[args.order]
+    data = load_dataset(args.data_path, trust_remote_code=True, split="train").select(range(1000))
+    pipe = pipeline("text-generation", args.model_path, device_map="auto", torch_dtype="auto"
     )
-    
-    
+    eval(
+        pipe=pipe,
+        tokenizer=tokenizer,
+        cls=cls,
+        data=data,
+        order=order
+    )
     
     
     
