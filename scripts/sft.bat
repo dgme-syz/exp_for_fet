@@ -1,6 +1,6 @@
 @echo off
 
-set MODEL_ID = "E:/pretrained_models/Qwen/Qwen2___5-0___5B-Instruct"
+set MODEL_ID = "Qwen/Qwen2.5-0.5B-Instruct"
 set DATASET_ID = "figer_test"
 set OUTPUT_DIR = "./saves/sft"
 set TEMPLATE = "qwen"
