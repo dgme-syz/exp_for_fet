@@ -53,8 +53,7 @@ def main(args):
     cls = AutoCLS.from_file(args.cls_path)
     order = cls[args.order]
     data = load_dataset(args.data_path, trust_remote_code=True, split="train").select(range(1000))
-    pipe = pipeline("text-generation", args.model_path, device_map="auto", torch_dtype="auto"
-    )
+    pipe = pipeline("text-generation", args.model_path, device_map="auto", torch_dtype="auto")
     eval(
         pipe=pipe,
         tokenizer=tokenizer,
