@@ -72,6 +72,7 @@ def main(args):
     data = load_dataset(args.data_path, trust_remote_code=True, split=args.split)
     
     if args.sample != -1:
+        args.sample = min(args.sample, len(data))
         data = data.select(range(args.sample))
     
     pipe = pipeline("text-generation", args.model_path, device_map="auto", torch_dtype="auto")

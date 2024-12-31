@@ -6,14 +6,12 @@
 
 <br/>
 <br/>
-<br/>
 
 > [!IMPORTANT]
 > 整个流程分为 3 步：
 > - 准备指令微调数据集（可选）
 > - 在数据集上进行下游任务（FET）微调（可选）
 > - 在 benchmark 上评估性能
-
 
 <br/>
 <br/>
@@ -28,27 +26,26 @@
 对于 **每条数据**，满足以下规则
 
 ```yaml
-- name: tokens
-    sequence: string
-- name: mentions
-    sequence:
-    - name: start
-        dtype: int32
-    - name: end
-        dtype: int32
-    - name: labels
-        sequence: string
+features:
+    - name: mention_span
+      dtype: string
+    - name: left_context_token
+      sequence: string
+    - name: right_context_token
+      sequence: string
+    - name: y_str
+      sequence: string
 ```
 
-> [!TIP]
-> **为什么将 mentions 设置为一个列表？**
-> 
-> 因为一句话可能存在多个值得关注的 mention，在 HuggingFace Datasets API 中，会将同一句话的 mentions 合并，从而出现上述 `start` 字段为一个列表的现象
 
 <br/>
 <br/>
 
-因此第一步，**你需要自己将原始数据集整理成上述形式** (只需要完成这一步，后续都能自动化处理)，推荐处理好后使用 `push_to_hub` 函数将您的数据集上传到 HuggingFace。
+因此第一步，**你需要自己将原始数据集整理成上述形式** (只需要完成这一步，后续都能自动化处理)，推荐处理好：
+
+* 使用 `push_to_hub` 函数将您的数据集上传到 HuggingFace
+* 然后将所有实体的类别的文件，放置在 `modules/datasets_classes`，可以参考 [figer.txt](modules/datasets_classes/figer.txt)
+* 在 `modules/cls.py` 文件中，加入数据集名与所有类别文件的位置的映射，具体参考字典 `NAME_CLS_MAPPING`
 
 <br/>
 <br/>

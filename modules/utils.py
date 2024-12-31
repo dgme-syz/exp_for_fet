@@ -5,7 +5,7 @@ from .cls import AutoCLS, get_suf
 from concurrent.futures import ThreadPoolExecutor
 from .template import register_template
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 from typing import Union
 import wandb
@@ -69,27 +69,22 @@ def process(
         (1). use_type == "eval", prepare the data for evaluation.
         (2.  use_type == "alpaca", prepare the data(alpaca format) for sft.
     """
-    mentions, tokens = examples["mentions"], examples["tokens"]
+    left_context, right_context = examples["left_context_token"], examples["right_context_token"]
+    mentions = examples["mention_span"]
     text, label, num_samples = [], [], len(mentions)
     
     def access_single(i: int):
-        t, l = [], []
-        mention, token = mentions[i], tokens[i] # there may be multiple mentions
-        num_entity = len(mention["start"])
-        for j in range(num_entity):
-            start, end, labels = mention["start"][j], mention["end"][j], mention["labels"][j]
-            sentence = token
-            entity = sentence[start:end]
-            t.append(register_template(
-                sentence=" ".join(sentence), mention=" ".join(entity), cls_ord=order
-            ))
-            l.append([get_suf(x) for x in labels])
+        t = register_template(
+            sentence=" ".join(left_context[i]) + " " + mentions[i] + " " + " ".join(right_context[i]), 
+            mention=mentions[i], cls_ord=order
+        )
+        l = [get_suf(x) for x in examples["y_str"][i]]
         return t, l
     
     # 多线程
     with ThreadPoolExecutor() as executor:
         res = executor.map(access_single, range(num_samples))
-        for t, l in res: text.extend(t), label.extend(l)
+        for t, l in res: text.append(t), label.append(l)
         
     if use_type == "eval":
         return {"text": text, "label": label}
@@ -111,26 +106,24 @@ def eval(
     **kwargs
 ):
     mec = Scores()
-    data_loader = DataLoader(
-        dataset=data.map(
-            function=lambda x: process(x, order), batched=True, remove_columns=data.column_names, num_proc=2
-        ), 
-        batch_size=1, 
-        num_workers=2,
-        pin_memory=torch.cuda.is_available(), 
-        shuffle=True
+    dataset=data.map(
+        function=lambda x: process(x, order), batched=True, remove_columns=data.column_names
     )
     
-    pbar = tqdm(data_loader, desc="Evaluating: ")
+    pbar = tqdm(dataset, desc="Evaluating: ")
     with torch.no_grad():
         for i, x in enumerate(pbar):
-            text, label = x["text"][0], x["label"][0]
-            
+            text, label = x["text"], x["label"]
             response = pipe(
                 [SYSTEM_INFO, {"role": "user", "content": text}], 
                 max_new_tokens=256
             )[0]['generated_text'][-1]['content']
             
+            # print(
+            #     # f"question: {text}\n"
+            #     f"Answer: {response}\n"
+            #     f"Ground Truth: {label}"
+            # )
             mec.update(
                 preds=cls.extract_answer(response), truths=label
             )

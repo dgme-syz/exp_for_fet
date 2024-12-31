@@ -22,3 +22,5 @@ rad.json
 TestResults.xml
 *.pyc
 /sft_modules/*
+/more_data/*
+/wandb/*
