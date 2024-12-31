@@ -105,15 +105,16 @@ python prepare_sft.py ^
 >   - **4**：随机顺序
 > <br/>
 > <br/>
-> 最终的呈现结果可以参考：
-> ```json
->{
->   "instruction":
->       "[Task]: Fine-grained entity classification\n[sentence]: A handful of professors in the UW Department of Chemistry are being recognized by the American Association for the Advancement of Science ( AAAS ) for their efforts and contributions to the scientific community .\n[entity]: UW\n[entity types]: \/ person musician artist director author athlete actor architect doctor politician soldier engineer monarch coach religious_leader terrorist location city country cemetery province body_of_water county bridge language organization company sports_league sports_team educational_institution airline terrorist_organization fraternity_sorority people ethnicity written_work software product computer weapon airplane ship spacecraft car instrument mobile_phone engine_device camera government government political_party park government_agency art film broadcast_program game geography island mountain glacier music military train rail railway building hospital airport sports_facility restaurant hotel theater power_station library dam event military_conflict attack natural_disaster terrorist_attack sports_event election protest title award law astral_body internet website disease chemistry news_agency time transportation road education educational_degree department transit broadcast_network broadcast tv_channel religion religion finance currency stock_exchange food livingthing animal living_thing god metropolitan_transit transit_line play body_part medicine medical_treatment drug symptom newspaper computer algorithm programming_language visual_art color biology\n[Classification Result]: \n[Warning]: Just output nothing except entity types above, separate them by one space, there may be more than one answer",
->   "output":"organization educational_institution",
->   "input":""
-> }
-> ```
+
+最终的呈现结果可以参考：
+```json
+{
+   "instruction":
+       "[Task]: Fine-grained entity classification\n[sentence]: A handful of professors in the UW Department of Chemistry are being recognized by the American Association for the Advancement of Science ( AAAS ) for their efforts and contributions to the scientific community .\n[entity]: UW\n[entity types]: \/ person musician artist director author athlete actor architect doctor politician soldier engineer monarch coach religious_leader terrorist location city country cemetery province body_of_water county bridge language organization company sports_league sports_team educational_institution airline terrorist_organization fraternity_sorority people ethnicity written_work software product computer weapon airplane ship spacecraft car instrument mobile_phone engine_device camera government government political_party park government_agency art film broadcast_program game geography island mountain glacier music military train rail railway building hospital airport sports_facility restaurant hotel theater power_station library dam event military_conflict attack natural_disaster terrorist_attack sports_event election protest title award law astral_body internet website disease chemistry news_agency time transportation road education educational_degree department transit broadcast_network broadcast tv_channel religion religion finance currency stock_exchange food livingthing animal living_thing god metropolitan_transit transit_line play body_part medicine medical_treatment drug symptom newspaper computer algorithm programming_language visual_art color biology\n[Classification Result]: \n[Warning]: Just output nothing except entity types above, separate them by one space, there may be more than one answer",
+   "output":"organization educational_institution",
+   "input":""
+}
+```
 
 <br/>
 <br/>
